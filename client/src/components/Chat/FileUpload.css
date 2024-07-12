@@ -1,0 +1,26 @@
+.file-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .file-upload input[type='file'] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+  }
+  
+  .upload-icon {
+    margin-right: 10px;
+  }
+  
+  .upload-button {
+    margin-top: 10px;
+  }
+  
