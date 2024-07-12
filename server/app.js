@@ -1,73 +1,97 @@
 import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config({ path: 'C:\\Users\\vighnesh\\Documents\\upload_file\\.env' });
 import multer from 'multer';
 import path from 'path';
 import request from 'request';
-import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import connectDB from './db/connect.js';
+import cors from 'cors';
+import userRoutes from './routes/userRoutes.js';
+import { notFound, errorHandler } from './middleware/errorMiddleWare.js';
+import cookieParser from 'cookie-parser';
+import chatRouter from './routes/chatRoute.js';
+import ChatModel from './model/chatModel.js';
+import { protect } from './middleware/authMiddleware.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Get the directory name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Middleware to parse JSON data
-app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(cors({ origin: 'http://localhost:5174', credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Set up multer for file uploads
+app.get('/', (req, res) => {
+  res.send("Server is ready!");
+});
+
+app.use('/api/users', userRoutes);
+app.use('/api/chat/', chatRouter);
+
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.resolve(__dirname, 'uploads/')); // Use absolute path
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+  destination: function (req, file, cb) {
+    cb(null, path.resolve(__dirname, 'uploads/'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
 });
 const upload = multer({ storage: storage });
 
-// Endpoint to handle file uploads
-app.post('/upload', upload.single('file'), function (req, res) {
-    const filePath = req.file.path;
-    console.log('File path:', filePath); // Debug log
+app.post('/api/upload', protect, upload.single('file'), async function (req, res) {
+  console.log(req.user);
+  console.log("req.file", req.file)
+  const userId = req.user._id;
+  // const fileName = req.body.name;
+  const filePath = req.file.path;
+  const fileName = req.file.originalname.replace(/\.pdf$/i, '');
+ 
+  // const filenameWithoutExtension = filename;
+  console.log('File path:', filePath);
+
+  // Create a new instance of ChatModel
+  try {
+    const newChat = new ChatModel();
+    await newChat.save();
+    const chatId = newChat._id;
+    console.log('New Chat ID:', chatId);
+    const dbName = `${fileName}_${chatId}_db`;
 
     // Send the file path to the Flask server
     request.post({
-        url: 'http://127.0.0.1:5000/process_file',
-        json: { filePath: filePath }
-    }, function (error, response, body) {
-        if (error) {
-            console.error('error:', error); // Print the error
-            res.status(500).send('Internal Server Error');
-        } else {
-            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            console.log('body:', body); // Print the data received
-            res.send(body); // Display the response on the website
+      url: 'http://127.0.0.1:5000/process_file',
+      json: { filePath: filePath, dbName }
+    }, async function (error, response, body) {
+      if (error || response.statusCode===500) {
+        console.error('error:', error);
+        res.status(500).send('Internal Server Error');
+      } else {
+        newChat.dbName = dbName;
+        newChat.userId = userId;
+        try {
+          await newChat.save();
+          console.log("body:", body);
+          console.log("response:", response);
+          res.status(200).send({message:"Successfully indexed the documents", db:dbName});
+        } catch (saveError) {
+          console.error('Error saving chat with dbName and userId:', saveError);
+          res.status(500).send('Internal Server Error');
         }
+      }
     });
+  } catch (error) {
+    console.error('Error creating chat:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
-// Endpoint to handle user queries
-app.post('/query', function (req, res) {
-    const { query } = req.body;
-
-    // Send the query to the Flask server
-    request.post({
-        url: 'http://127.0.0.1:5000/query',
-        json: { query: query }
-    }, function (error, response, body) {
-        if (error) {
-            console.error('error:', error); // Print the error
-            res.status(500).send('Internal Server Error');
-        } else {
-            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            console.log('body:', body); // Print the data received
-            res.send(body); // Display the response on the website
-        }
-    });
-});
+connectDB();
 
 app.listen(PORT, function () {
-    console.log('Listening on Port 3000');
+  console.log(`Listening on Port ${PORT}`);
 });
