@@ -1,23 +1,37 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
+
+from llama_index.storage.docstore.mongodb import MongoDocumentStore
+from llama_index.storage.index_store.mongodb import MongoIndexStore
+
+from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader, StorageContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.replicate import Replicate
 from transformers import AutoTokenizer
+import pymongo
+# from llama_index import SimpleMongoReader
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core import load_index_from_storage
+# import lmql
+import re
 
 # Load environment variables from .env file
 load_dotenv()
 
+# MongoDB URI
+mongo_uri="mongodb+srv://makireddyvighnesh:7eROawxrJ8odKnVU@cluster0.gb2dypq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# os.environ['REPLICATE_API_TOKEN'] = 'r8_RcDFAgBA7l3p5mlpLq9D4ZmPGJvKjNl0Sgg5r' #r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
+os.environ['REPLICATE_API_TOKEN'] = 'r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
 # Initialize Flask app
 app = Flask(__name__)
-
-# Global variable to hold the index
 index = None
+
+# Initialize MongoDB client
+mongodb_client = pymongo.MongoClient(mongo_uri)
 
 # Function to initialize LLM and other settings
 def initialize_llm():
-    # Set the LLM
     llama2_7b_chat = "meta/llama-2-7b-chat:8e6975e5ed6174911a6ff3d60540dfd4844201974602551e10e9e87ab143d81e"
     Settings.llm = Replicate(
         model=llama2_7b_chat,
@@ -35,6 +49,9 @@ def initialize_llm():
         model_name="BAAI/bge-small-en-v1.5"
     )
 
+    Settings.chink_size=100
+    Settings.chunk_overlap=10
+
 # Route to process the uploaded file
 @app.route('/process_file', methods=['POST'])
 def process_file():
@@ -43,62 +60,97 @@ def process_file():
     try:
         data = request.get_json()
         file_path = data.get('filePath')
+        db_name=data.get('dbName')
+        print(file_path)
         absolute_file_path = os.path.abspath(file_path)
 
-        print(f"Received file path: {file_path}")  # Debug log
-        print(f"Absolute file path: {absolute_file_path}")  # Debug log
-
-        if not file_path or not os.path.exists(absolute_file_path):
-            print("File path does not exist")  # Debug log
-            return jsonify({"error": "Invalid file path"}), 400
+        # if not file_path or not os.path.exists(absolute_file_path):
+        #     return jsonify({"error": "Invalid file path"}), 400
 
         # Initialize the LLM and settings
         initialize_llm()
+        print("Initialized llms")
 
-        # Load documents from the file path
         documents = SimpleDirectoryReader(input_files=[absolute_file_path]).load_data()
 
-        # Create the index
-        index = VectorStoreIndex.from_documents(documents)
+        print("loaded documents")
+        
+        nodes = SentenceSplitter().get_nodes_from_documents(documents)
+        print("text splitted into small nodes")
 
-        return jsonify({"message": "File processed successfully"}), 200
+        pattern = r"([a-zA-Z0-9]+_db)"
+        db_name = re.search(pattern,db_name).group(1)
+        print(db_name)
+
+        storage_context = StorageContext.from_defaults(
+            docstore=MongoDocumentStore.from_uri(uri=mongo_uri, db_name=db_name),
+            index_store=MongoIndexStore.from_uri(uri=mongo_uri, db_name=db_name),
+        )
+
+        storage_context.docstore.add_documents(nodes)
+        index = VectorStoreIndex(nodes, storage_context=storage_context)
+        return jsonify({"message": "File processed successfully", "dbName":db_name}), 200
 
     except Exception as e:
-        print(f"Exception: {str(e)}")  # Debug log
+        print(e)
         return jsonify({"error": str(e)}), 500
-
-# Route to handle the query
-@app.route('/query', methods=['POST'])
-def query_llm():
+    
+@app.route('/index', methods=['POST'])
+def index_doc():
     global index
-
     try:
-        if index is None:
-            return jsonify({"error": "No file processed yet"}), 400
+        initialize_llm()
+        data = request.get_json()
+        dbName = data.get('dbName')
+        pattern = r"([a-zA-Z0-9]+_db)"
+        dbName = re.search(pattern,dbName).group(1)
+        print(dbName)
+        print(mongo_uri)
+        docstore = MongoDocumentStore.from_uri(uri=mongo_uri, db_name=dbName)
+        print("loaded docs")
+        nodes = list(docstore.docs.values())
+        print("loaded nodes")
+        index = VectorStoreIndex(nodes)
+        print("indexed docs")
+        return jsonify({"message": "Successfully indexed!"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 500
+    
 
+# @app.route('/llm/query/', methods=['POST'])
+# def chat_llm():
+#     pass
+    
+@app.route('/document/query', methods=['POST'])
+def query_doc_llm():
+    global index
+    try:
+        print("query: ")
         data = request.get_json()
         query = data.get('query')
+        # collectionName=data.get('collectionName')
+        dbName = data.get('dbName')
+        print('Query ', query)
 
-        if not query:
-            return jsonify({"error": "Invalid query"}), 400
-
-        # Create a query engine
+        # if not index:
         query_engine = index.as_query_engine()
-
-        # Perform the query
-        result = query_engine.query(query)
-        print(result)
-
-        # Serialize the result
+        response = query_engine.query(query)
+        print(response.response)
+        # response.print_response_stream()
         response = {
-            "response": serialize_result(result)
+            "response": serialize_result(response.response)#.response
         }
+        print(response)
+        print("response")
 
         return jsonify(response)
-
+    
     except Exception as e:
-        print(f"Exception: {str(e)}")  # Debug log
+        print(e)
         return jsonify({"error": str(e)}), 500
+
+
 
 def serialize_result(result):
     if isinstance(result, list):
@@ -109,4 +161,4 @@ def serialize_result(result):
         return str(result)
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=False)  # Set debug=False to avoid automatic reloading
+    app.run(port=5000, debug=False)
