@@ -18,11 +18,14 @@ import re
 
 # Load environment variables from .env file
 load_dotenv()
-
 # MongoDB URI
+
+
 mongo_uri="mongodb+srv://makireddyvighnesh:7eROawxrJ8odKnVU@cluster0.gb2dypq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-# os.environ['REPLICATE_API_TOKEN'] = 'r8_RcDFAgBA7l3p5mlpLq9D4ZmPGJvKjNl0Sgg5r' #r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
-os.environ['REPLICATE_API_TOKEN'] = 'r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
+# os.environ['REPLICATE_API_TOKEN'] = 'r8_4E0QB2LxRJfGn8kL3XYoroyRd25LYGd3fPLbT' #r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
+os.environ['REPLICATE_API_TOKEN'] = 'r8_S0eFonwbMvDVDrzsBg97vPPwDecgH8V0AnxX6'
+# os.environ['REPLICATE_API_TOKEN'] = 'r8_YyzEYDSOcXR4twAAGIgei46MfucDSb21lVgJQ'
+
 # Initialize Flask app
 app = Flask(__name__)
 index = None
@@ -56,7 +59,7 @@ def initialize_llm():
 @app.route('/process_file', methods=['POST'])
 def process_file():
     global index
-
+    print("flask")
     try:
         data = request.get_json()
         file_path = data.get('filePath')
@@ -150,7 +153,9 @@ def query_doc_llm():
         print(e)
         return jsonify({"error": str(e)}), 500
 
-
+@app.route('/queryLLM', methods=['POST'])
+def queryLLM():
+    pass
 
 def serialize_result(result):
     if isinstance(result, list):
