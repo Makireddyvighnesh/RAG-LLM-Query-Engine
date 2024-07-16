@@ -1,5 +1,5 @@
 import express from 'express';
-import { getQueries, createQuery, getDBs, indexDoc, deleteChat } from '../controllers/chatController.js';
+import { getQueries, createQuery, getDBs, indexDoc, deleteChat, deleteConversation } from '../controllers/chatDocumentController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const chatRouter = express.Router();
@@ -8,7 +8,8 @@ const chatRouter = express.Router();
 chatRouter.get('/index/:db', indexDoc);
 chatRouter.get('/dbs', protect, getDBs);
 chatRouter.post('/query',protect, createQuery);
-chatRouter.get('/',protect, getQueries);
+chatRouter.get('/:rootId/:index?',protect, getQueries);
 chatRouter.delete('/deleteChat/:dbName', deleteChat);
+chatRouter.delete('/deleteConversation/:dbName',deleteConversation);
 
 export default chatRouter;

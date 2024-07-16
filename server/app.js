@@ -12,7 +12,7 @@ import userRoutes from './routes/userRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleWare.js';
 import cookieParser from 'cookie-parser';
 import chatRouter from './routes/chatRoute.js';
-import ChatModel from './model/chatModel.js';
+import Conversation from './model/conversationModel.js';
 import { protect } from './middleware/authMiddleware.js';
 
 const app = express();
@@ -47,22 +47,17 @@ app.post('/api/upload', protect, upload.single('file'), async function (req, res
   console.log(req.user);
   console.log("req.file", req.file)
   const userId = req.user._id;
-  // const fileName = req.body.name;
   const filePath = req.file.path;
   const fileName = req.file.originalname.replace(/\.pdf$/i, '');
  
-  // const filenameWithoutExtension = filename;
   console.log('File path:', filePath);
 
-  // Create a new instance of ChatModel
   try {
-    const newChat = new ChatModel();
+    const newChat = new Conversation();
     await newChat.save();
     const chatId = newChat._id;
     console.log('New Chat ID:', chatId);
     const dbName = `${fileName}_${chatId}_db`;
-
-    // Send the file path to the Flask server
     request.post({
       url: 'http://127.0.0.1:5000/process_file',
       json: { filePath: filePath, dbName }
