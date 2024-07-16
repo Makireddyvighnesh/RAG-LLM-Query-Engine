@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+
 from flask import Flask, request, jsonify
 
 from llama_index.storage.docstore.mongodb import MongoDocumentStore
@@ -19,12 +20,11 @@ import re
 # Load environment variables from .env file
 load_dotenv()
 # MongoDB URI
+print(os.getenv("PORT"))
 
-
-mongo_uri="mongodb+srv://makireddyvighnesh:7eROawxrJ8odKnVU@cluster0.gb2dypq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-# os.environ['REPLICATE_API_TOKEN'] = 'r8_4E0QB2LxRJfGn8kL3XYoroyRd25LYGd3fPLbT' #r8_Bf2AqabLn3BY2SUJcov2Uk22032UQoD1Afz6x'
-os.environ['REPLICATE_API_TOKEN'] = 'r8_S0eFonwbMvDVDrzsBg97vPPwDecgH8V0AnxX6'
-# os.environ['REPLICATE_API_TOKEN'] = 'r8_YyzEYDSOcXR4twAAGIgei46MfucDSb21lVgJQ'
+mongo_uri= os.getenv('MONGO_ATLAS_URI')
+print(mongo_uri)
+os.environ['REPLICATE_API_TOKEN'] = os.getenv('REPLICATE_API_TOKEN')
 
 # Initialize Flask app
 app = Flask(__name__)
