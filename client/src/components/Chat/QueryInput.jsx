@@ -4,81 +4,72 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import './ChatInput.css';
 import axios from 'axios';
 
-function ChatInput({ onSend, addMessage, currDB, docIndexedID, handleIndexedDoc}) {
+function ChatInput({ onSend, addMessage, currDB, docIndexedID, handleIndexedDoc, currParentId, onQuery }) {
   const [query, setQuery] = useState('');
-  const inputEl = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
-    inputEl.current.focus();
+    textareaRef.current.focus();
   }, []);
 
   const handleInput = (e) => {
-    console.log(e.target.value)
-    setQuery(e.target.value);
+    const inputValue = e.target.value;
+    setQuery(inputValue);
+    adjustTextareaHeight();
     console.log("current Db: ", currDB);
     console.log("Indexed Db: ", docIndexedID);
-    if(e.target.value.length>1  && currDB!==docIndexedID){
-     
+    if (inputValue.length > 1 && currDB !== docIndexedID) {
       handleIndexedDoc(currDB);
       handleIndex(currDB);
     }
   };
 
-  const handleIndex = async (db)=>{
-    console.log("handleDocIndex")
-    alert(db)
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    textarea.style.height = 'auto'; // Reset height
+    textarea.style.height = textarea.scrollHeight + 'px'; // Set height based on scroll height
+  };
+
+  const handleIndex = async (db) => {
+    console.log("handleDocIndex");
+    alert(db);
     try {
       const res = await axios.get(`http://localhost:3000/api/chat/index/${db}`, {
-      }, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json',
         },
       });
       console.log(res);
-      console.log("You can Start ur queries with LLM!")
+      console.log("You can start your queries with LLM!");
     } catch (error) {
       console.error('Error:', error);
     }
 
-    console.log("iNDEXING THE DB", db)
-    // setIndexDoc(false)
-  }
+    console.log("Indexing the DB", db);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setQuery('');
     if (query.length < 3) {
       return;
     }
-    // Call the onSend function passed as a prop
-    onSend(query);
-    try {
-      const res = await axios.post('http://localhost:3000/api/chat/query', {
-        query: query,
-        dbName: currDB,
-      }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      console.log(res.data.response)
-      addMessage(query, res.data.response); // Assuming addMessage is a function passed as prop
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    setQuery('');
+    adjustTextareaHeight(); // Reset textarea height
+
+    console.log("query", query);
+    await onQuery(query, currDB, currParentId);
   };
 
   return (
     <form className="chat-input" onSubmit={handleSubmit}>
-      <input
-        type="text"
+      <textarea
         value={query}
         onChange={handleInput}
         placeholder="Type your query..."
         className="chat-input-field"
-        ref={inputEl}
+        ref={textareaRef}
+        style={{ minHeight: '40px', maxHeight: '200px', resize: 'none', overflowY: 'auto' }}
       />
       <button type="submit" className="chat-input-submit">
         <FontAwesomeIcon icon={faPaperPlane} />

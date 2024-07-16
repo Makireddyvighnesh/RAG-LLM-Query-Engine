@@ -67,3 +67,31 @@
     color: #aaa;
   }
    */
+
+
+   .chat-input {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .chat-input-field {
+    flex-grow: 1;
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: height 0.2s ease;
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+  }
+  
+  .chat-input-submit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+  }
+  

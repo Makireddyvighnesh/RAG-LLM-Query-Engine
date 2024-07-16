@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import axios from 'axios';
-import Spinner from '../Spinner.jsx'
+import Spinner from '../Spinner.jsx';
+import { FaFileUpload, FaBrain } from 'react-icons/fa';
 
-const FileUpload = ({ onNewChat ,handleNewChatDb}) => {
-  const [isLoading, setIsLoading]=useState(false);
+const FileUpload = ({ onNewChat, handleNewChatDb }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
-  if(isLoading) return <Spinner></Spinner>;
+  const [choice, setChoice] = useState(false);
+  if (isLoading) return <Spinner />;
 
   const onFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -25,8 +27,8 @@ const FileUpload = ({ onNewChat ,handleNewChatDb}) => {
         },
       });
       if (response.status === 200) onNewChat();
-      alert(response.data.db)
-      handleNewChatDb(response.data.db);
+      alert(response.data.db);
+      handleNewChatDb(response.data);
       console.log(response);
       setMessage('File uploaded successfully');
       setIsLoading(false);
@@ -38,10 +40,26 @@ const FileUpload = ({ onNewChat ,handleNewChatDb}) => {
 
   return (
     <div style={{ marginLeft: '250px', marginTop: '180px' }}>
-      <h2>File Upload</h2>
-      <input type="file" onChange={onFileChange} />
-      <button onClick={onFileUpload}>Upload</button>
-      {message && <p>{message}</p>}
+      {!choice && (<div>
+        <p>How would you like to interact?</p>
+        <a href="#document-query" onClick={() => setChoice('document')}>
+          <FaFileUpload /> Query with Document
+        </a> 
+        or 
+        <a href="#llm-query" onClick={() => setChoice('llm')}>
+          <FaBrain /> Interact with LLM
+        </a>
+      </div>)}
+      {choice === 'document' && (
+        <div>
+          <h2>File Upload</h2>
+          <input type="file" onChange={onFileChange} />
+          <button onClick={onFileUpload}>
+             Upload
+          </button>
+          {message && <p>{message}</p>}
+        </div>
+      )}
     </div>
   );
 };

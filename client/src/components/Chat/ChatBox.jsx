@@ -1,15 +1,19 @@
 import ChatInput from './QueryInput';
 import ChatMessage from './ChatMessage';
-import  { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import './ChatBox.css';
-function ChatBox({messages, handleSend, addMessage, currDB,  docIndexedID, handleIndexedDoc, handleEditQuery}) {
- 
+
+function ChatBox({ messages, handleSend, addMessage, currDB, docIndexedID, handleIndexedDoc, handleEditQuery, currParentId, handleChat, onQuery }) {
+  // console.log("messages: ", messages);
+
   const chatContainerRef = useRef(null);
+  // alert(`currdb ${currDB}`)
 
   useEffect(() => {
+    // alert(`currDB ${currDB}`)
     scrollToBottom();
-  }, [messages]); // Trigger scroll effect whenever 'message' prop changes
+  }, [currDB]); // Trigger scroll effect whenever 'messages' prop changes
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -17,15 +21,30 @@ function ChatBox({messages, handleSend, addMessage, currDB,  docIndexedID, handl
     }
   };
 
-
   return (
-    <div className="chat-box" >
+    <div className="chat-box">
       <div className="messages" ref={chatContainerRef}>
-        {messages.queries.map((query, index) => (
-          <ChatMessage key={index} message={{ query, response: messages.responses[index] }} index={index} handleEditQuery={handleEditQuery}/>
+        {messages.map((message, index) => (
+          <ChatMessage
+            key={message.parentId}
+            message={{ query: message.question, response: message.response, parentId:message.parentId, _id:message._id, childrenLength:message.childrenLength, index:message.index }}
+            i={index}
+            handleEditQuery={handleEditQuery}
+            handleChat={handleChat}
+            onQuery={onQuery}
+            currDB={currDB}
+          />
         ))}
       </div>
-      <ChatInput onSend={handleSend} addMessage={addMessage} currDB={currDB}  docIndexedID={docIndexedID} handleIndexedDoc={handleIndexedDoc}/>
+      <ChatInput
+        onSend={handleSend}
+        addMessage={addMessage}
+        currDB={currDB}
+        docIndexedID={docIndexedID}
+        handleIndexedDoc={handleIndexedDoc}
+        currParentId={currParentId}
+        onQuery={onQuery}
+      />
     </div>
   );
 }
