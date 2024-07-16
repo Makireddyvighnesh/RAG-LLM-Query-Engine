@@ -1,0 +1,97 @@
+/* body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  } */
+/*   
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  } */
+  
+  /* .chat-container {
+    height: 100vh;
+    padding: 2.4rem;
+    overscroll-behavior-y: none;
+    display: flex;
+    position: relative;
+  } */
+  
+  /* .chat-input { */
+    /* position: fixed;
+    bottom: 30px;
+    left: 200px;
+    right: 200px;
+    display: flex;
+    align-items: center;
+    padding: 10px; */
+    /* background-color: #333;
+    border-top: 1px solid #444; */
+  /* } */
+  
+  /* .chat-input-upload,
+  .chat-input-submit {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.5em;
+    padding: 10px;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .chat-input-upload:hover,
+  .chat-input-submit:hover {
+    color: #fff;
+  } */
+  
+  /* .chat-input-field {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 20px;
+    margin: 0 10px;
+    background-color: #444;
+    color: #eee;
+    outline: none;
+  } */
+  
+  /* .chat-input-field::placeholder {
+    color: #aaa;
+  }
+   */
+
+
+   .chat-input {
+    display: flex;
+    align-items: flex-start;
+  }
+  
+  .chat-input-field {
+    flex-grow: 1;
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: height 0.2s ease;
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+  }
+  
+  .chat-input-submit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+  }
+  

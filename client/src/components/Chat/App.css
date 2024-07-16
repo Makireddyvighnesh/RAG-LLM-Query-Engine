@@ -1,0 +1,24 @@
+.app-container {
+  height: 100vh;
+  padding: 2.4rem;
+  /* width: 100%; */
+  overscroll-behavior-y: none;
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  }
+  
+  /* .chat-history {
+    
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    overflow-y: auto;
+  } */
+/*   
+  .chat-box {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    background-color: #e2e2e2;
+  }
+   */
