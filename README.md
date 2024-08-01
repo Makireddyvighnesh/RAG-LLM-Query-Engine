@@ -1,6 +1,6 @@
 # Document Querying with Retrieval Augmented Generation (RAG)
 
-A cutting-edge application designed to manage and interact with hierarchical conversation data, developed from May 2024 to June 2024.
+A cutting-edge application designed to manage and interact with hierarchical conversation data.
 
 ## Features
 
