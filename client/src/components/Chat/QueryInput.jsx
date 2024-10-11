@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import './ChatInput.css';
 import axios from 'axios';
+import { useChat } from '../../contexts/ChatContext.jsx'; // Import the useChat hook
 
-function ChatInput({ onSend, addMessage, currDB, docIndexedID, handleIndexedDoc, currParentId, onQuery }) {
+function ChatInput() {
+  const { currDB, docIndexedID, handleIndexedDoc, currParentId, handleCreateQuery } = useChat(); // Destructure needed values and functions from useChat
   const [query, setQuery] = useState('');
   const textareaRef = useRef(null);
 
@@ -58,7 +60,7 @@ function ChatInput({ onSend, addMessage, currDB, docIndexedID, handleIndexedDoc,
     adjustTextareaHeight(); // Reset textarea height
 
     console.log("query", query);
-    await onQuery(query, currDB, currParentId);
+    await handleCreateQuery(query, currDB, currParentId);
   };
 
   return (

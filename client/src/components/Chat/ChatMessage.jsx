@@ -1,12 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import  { useState, useRef, useEffect } from 'react';
+import { useChat } from '../../contexts/ChatContext.jsx'; // Import the useChat hook
 import './ChatMessage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
-function ChatMessage({ message, i, handleEditQuery, handleChat, currDB }) {
+function ChatMessage({ message, i }) {
+  const { handleCreateQuery, handleChat, currDB } = useChat(); // Destructure needed functions and values from useChat
   const [isEdit, setIsEdit] = useState(false);
   const [editQuestion, setEditQuestion] = useState('');
-  const { query, response, parentId, childrenLength, index: currIndex } = message;
+  const { question:query, response, parentId, childrenLength, index: currIndex } = message;
   const inputRef = useRef(null);
 
   const handleEdit = (query) => {
@@ -14,12 +16,12 @@ function ChatMessage({ message, i, handleEditQuery, handleChat, currDB }) {
     setEditQuestion(query);
   };
 
- 
   const handleSubmit = (e) => {
     e.preventDefault();
     alert(editQuestion);
+    alert(parentId);
     setIsEdit(false);
-    handleEditQuery(editQuestion,currDB, parentId , i, childrenLength)
+    handleCreateQuery(editQuestion, currDB, parentId, i, childrenLength);
   };
 
   useEffect(() => {
@@ -30,58 +32,61 @@ function ChatMessage({ message, i, handleEditQuery, handleChat, currDB }) {
 
   return (
     <div className="chat-message">
-    {/* <p>{childrenLength} {currIndex} {i} {parentId}</p> */}
-      {!isEdit ? (<div style={{ display: 'flex', alignItems: 'center', justifyContent: isEdit ? 'flex-start' : 'flex-end', marginBottom:'20px' }}>
-        
+      {/* <p>{childrenLength} {currIndex} {i} {parentId}</p> */}
+      {!isEdit ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: isEdit ? 'flex-start' : 'flex-end', marginBottom: '20px' }}>
           <FontAwesomeIcon
             icon={faEdit}
             style={{ marginRight: '10px', paddingBottom: '15px', cursor: 'pointer' }}
             onClick={() => handleEdit(query)}
           />
-            <p><strong>Question:</strong> {query}</p>
-            {/* <p>{parentId}</p> */}
-
-        
-        </div>):
-      
+          <p><strong>Question:</strong> {query}</p>
+          {/* <p>{parentId}</p> */}
+        </div>
+      ) : (
         <div className="message user-message" style={{ textAlign: isEdit ? 'left' : 'right', marginRight: '10px', width: '100%' }}>
-          
-            <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#f1f1f1', padding: '10px', width: '100%' }}>
-              <textarea
-                type="text"
-                value={editQuestion}
-                onChange={(e) => setEditQuestion(e.target.value)}
-                ref={inputRef}
-                style={{minHeight: '40px', maxHeight: '200px', resize: 'none', overflowY: 'auto', outline:'none',border: '0px', backgroundColor: '#f1f1f1', padding: '10px', width: '100%', marginBottom: '10px' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button onClick={() => {
+          <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#f1f1f1', padding: '10px', width: '100%' }}>
+            <textarea
+              type="text"
+              value={editQuestion}
+              onChange={(e) => setEditQuestion(e.target.value)}
+              ref={inputRef}
+              style={{ minHeight: '40px', maxHeight: '200px', resize: 'none', overflowY: 'auto', outline: 'none', border: '0px', backgroundColor: '#f1f1f1', padding: '10px', width: '100%', marginBottom: '10px' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
                   setIsEdit(false);
                   setEditQuestion('');
-                  }} style={{color:'white', border: 'none', borderRadius:'9999px', backgroundColor: '#2d3439', padding: '10px', cursor: 'pointer' , marginRight:'20px'}}>
-                  Cancel
-                </button>
-                <button onClick={handleSubmit} style={{ border: 'none', color:'black',backgroundColor: '#d6dee0',borderRadius:'9999px', padding: '10px',  cursor: 'pointer' }}>
-                  Send
-                </button>
-              </div>
+                }}
+                style={{ color: 'white', border: 'none', borderRadius: '9999px', backgroundColor: '#2d3439', padding: '10px', cursor: 'pointer', marginRight: '20px' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                style={{ border: 'none', color: 'black', backgroundColor: '#d6dee0', borderRadius: '9999px', padding: '10px', cursor: 'pointer' }}
+              >
+                Send
+              </button>
             </div>
-           
-      </div>}
+          </div>
+        </div>
+      )}
 
       <div className="message ai-message">
         {childrenLength > 1 && (
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button
               style={{ cursor: 'pointer', fontSize: '20px', margin: '10px', border: 'none' }}
-              onClick={() => handleChat({ rootId: parentId, index: currIndex - 1 , startIndex:i, len:childrenLength})}
+              onClick={() => handleChat({ rootId: parentId, index: currIndex - 1, startIndex: i, len: childrenLength })}
             >
               &lt;
             </button>
             <span style={{ paddingTop: '13px' }}>{currIndex}/{childrenLength}</span>
             <button
               style={{ cursor: 'pointer', fontSize: '20px', margin: '10px', border: 'none' }}
-              onClick={() => handleChat({ rootId: parentId, index: currIndex + 1, startIndex:i, len:childrenLength, incre:true })}
+              onClick={() => handleChat({ rootId: parentId, index: currIndex + 1, startIndex: i, len: childrenLength, incre: true })}
             >
               &gt;
             </button>

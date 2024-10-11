@@ -21,8 +21,9 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-app.use(cookieParser());
 app.use(cors({ origin: 'http://localhost:5174', credentials: true }));
+app.use(cookieParser());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -72,7 +73,7 @@ app.post('/api/upload', protect, upload.single('file'), async function (req, res
           await newChat.save();
           console.log("body:", body);
           console.log("response:", response);
-          res.status(200).send({message:"Successfully indexed the documents", db:dbName});
+          res.status(200).send({dbName:dbName, rootId:[]});
         } catch (saveError) {
           console.error('Error saving chat with dbName and userId:', saveError);
           res.status(500).send('Internal Server Error');
@@ -86,6 +87,8 @@ app.post('/api/upload', protect, upload.single('file'), async function (req, res
 });
 
 connectDB();
+
+
 
 app.listen(PORT, function () {
   console.log(`Listening on Port ${PORT}`);

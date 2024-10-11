@@ -1,6 +1,8 @@
+import { useChat } from '../../contexts/ChatContext.jsx';
 import './chatHistory.css';
 
-function ChatHistory({ dbs, onNewChat, handleChat, onDeleteChat }) {
+function ChatHistory() {
+  const {dbs, handleChat, handleNewChat, handleDeleteChat} = useChat();
   console.log(dbs)
   return (
     <div>
@@ -8,7 +10,7 @@ function ChatHistory({ dbs, onNewChat, handleChat, onDeleteChat }) {
         <p className='p'>
           Chat History
         </p>
-        <p className='p' onClick={()=>onNewChat()}>
+        <p className='p' onClick={()=>handleNewChat()}>
           New Chat
         </p>
       </div>
@@ -21,7 +23,7 @@ function ChatHistory({ dbs, onNewChat, handleChat, onDeleteChat }) {
             <p onClick={()=>{
               handleChat({db:db.dbName,rootId:db.rootId[db.rootId.length-1], clicked:'click',len:db.rootId.length});
               }}>{db.dbName.substring(0,25)}...</p>
-            <p className='p' onClick={()=>onDeleteChat(db.dbName)}>delete</p>
+            <p className='p' onClick={()=>handleDeleteChat(db.dbName)}>delete</p>
           </div>
         ))}
       </div>

@@ -1,8 +1,6 @@
 //authSlice.js
 
 import { createSlice } from "@reduxjs/toolkit";
-import { set } from "mongoose";
-import { act } from "react";
 
 const initialState = {
     userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')):null

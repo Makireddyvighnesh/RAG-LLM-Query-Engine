@@ -13,7 +13,7 @@ from transformers import AutoTokenizer
 import pymongo
 # from llama_index import SimpleMongoReader
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.core import load_index_from_storage
+# from llama_index.core import load_index_from_storage
 # import lmql
 import re
 
@@ -39,7 +39,7 @@ def initialize_llm():
     Settings.llm = Replicate(
         model=llama2_7b_chat,
         temperature=0.01,
-        additional_kwargs={"top_p": 1, "max_new_tokens": 300},
+        additional_kwargs={"top_p": 1,"max_new_tokens": 1000},
     )
 
     # Set tokenizer to match LLM
@@ -137,12 +137,17 @@ def query_doc_llm():
         print('Query ', query)
 
         # if not index:
-        query_engine = index.as_query_engine()
+        query_engine = index.as_query_engine(streaming=True)
         response = query_engine.query(query)
-        print(response.response)
-        # response.print_response_stream()
+        response.print_response_stream()
+        # for text in streaming_response.response_gen:
+        # # do something with text as they arrive.
+        #     pass
+
+        print(response)
+
         response = {
-            "response": serialize_result(response.response)#.response
+            "response": serialize_result(response)#.response
         }
         print(response)
         print("response")
@@ -167,3 +172,6 @@ def serialize_result(result):
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
+
+
+

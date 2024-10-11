@@ -1,19 +1,18 @@
+// ChatBox.jsx
+import { useChat } from '../../contexts/ChatContext.jsx';
 import ChatInput from './QueryInput';
 import ChatMessage from './ChatMessage';
 import { useEffect, useRef } from 'react';
-
 import './ChatBox.css';
 
-function ChatBox({ messages, handleSend, addMessage, currDB, docIndexedID, handleIndexedDoc, handleEditQuery, currParentId, handleChat, onQuery }) {
-  // console.log("messages: ", messages);
+function ChatBox() {
+  const { messages, currDB } = useChat();  // Ensure messages is always an array
 
   const chatContainerRef = useRef(null);
-  // alert(`currdb ${currDB}`)
 
   useEffect(() => {
-    // alert(`currDB ${currDB}`)
     scrollToBottom();
-  }, [currDB]); // Trigger scroll effect whenever 'messages' prop changes
+  }, [currDB, messages]); // Trigger scroll effect whenever 'messages' or 'currDB' changes
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -26,25 +25,13 @@ function ChatBox({ messages, handleSend, addMessage, currDB, docIndexedID, handl
       <div className="messages" ref={chatContainerRef}>
         {messages.map((message, index) => (
           <ChatMessage
-            key={message.parentId}
-            message={{ query: message.question, response: message.response, parentId:message.parentId, _id:message._id, childrenLength:message.childrenLength, index:message.index }}
+            key={message._id}
+            message={message}
             i={index}
-            handleEditQuery={handleEditQuery}
-            handleChat={handleChat}
-            onQuery={onQuery}
-            currDB={currDB}
           />
         ))}
       </div>
-      <ChatInput
-        onSend={handleSend}
-        addMessage={addMessage}
-        currDB={currDB}
-        docIndexedID={docIndexedID}
-        handleIndexedDoc={handleIndexedDoc}
-        currParentId={currParentId}
-        onQuery={onQuery}
-      />
+      <ChatInput />
     </div>
   );
 }
