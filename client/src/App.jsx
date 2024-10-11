@@ -1,6 +1,3 @@
-
-
-
 import Header from "./components/Auth/Header.jsx";
 import { Outlet } from "react-router-dom";
 import { Container } from "react-bootstrap";
