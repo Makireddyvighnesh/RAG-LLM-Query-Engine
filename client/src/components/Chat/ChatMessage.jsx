@@ -6,6 +6,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 function ChatMessage({ message, i }) {
   const { handleCreateQuery, handleChat, currDB } = useChat(); // Destructure needed functions and values from useChat
+  
   const [isEdit, setIsEdit] = useState(false);
   const [editQuestion, setEditQuestion] = useState('');
   const { question:query, response, parentId, childrenLength, index: currIndex } = message;

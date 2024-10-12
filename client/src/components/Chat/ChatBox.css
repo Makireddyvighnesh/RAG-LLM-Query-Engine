@@ -101,3 +101,66 @@
   .history{
     margin-left: 0px;
   }
+
+  .chat-box {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  
+  .no-queries-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 1.2em;
+    color: #555;
+    text-align: center;
+  }
+  
+  .no-queries-message p {
+    background-color: #eaf2f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .no-queries-message p:hover {
+    background-color: #d4e6f1;
+    transition: background-color 0.3s ease;
+  }
+  
+  .no-queries-message span {
+    color: #2d3439;
+    font-weight: bold;
+  }
+  
+  .chat-box .messages {
+    flex-grow: 1;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f1f3f5;
+    border-radius: 10px;
+  }
+  
+  .chat-box .messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chat-box .messages::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 4px;
+  }
+  

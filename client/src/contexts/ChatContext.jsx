@@ -5,6 +5,7 @@ const ChatContext = createContext();
 
 const ChatProvider = ({ children }) => {
   const [dbs, setDbs] = useState([{ dbName: '', rootId: [] }]);
+  const [noMessages, setNoMessages] = useState("");
   const [currDB, setCurrDB] = useState('');
   const [messages, setMessages] = useState([]);
   const [newChat, setNewChat] = useState(true);
@@ -28,6 +29,15 @@ const ChatProvider = ({ children }) => {
   };
 
   const handleChat = async ({ db, rootId, clicked = '', len, index, startIndex, incre = false }) => {
+    if(!rootId){
+      alert(1)
+      setNoMessages("No conversations yet")
+      setNewChat(false);
+      return
+    }
+    else{
+      setNoMessages("")
+    }
     if (rootId === null) {
       const targetObject = dbs.find((obj) => obj.dbName === currDB);
       rootId = !incre
@@ -244,6 +254,7 @@ const ChatProvider = ({ children }) => {
         setNewChat,
         setDocIndexedID,
         setCurrParentId,
+        noMessages
       }}
     >
       {children}

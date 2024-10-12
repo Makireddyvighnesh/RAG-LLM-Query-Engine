@@ -116,8 +116,8 @@ const createQuery = async (req, res) => {
             try {
                 const conversationId = await Conversation.findOne({ dbName: dbName });
                 console.log("conversationId ", conversationId);
-                let message = await Message.create({ conversationId: conversationId._id, question: query, response: body.response.response_txt, parentId });
-                console.log("body.response: ", body.response)
+                let message = await Message.create({ conversationId: conversationId._id, question: query, response: body, parentId });
+                console.log("body.response: ", body)
                 console.log("Filled message is: ", message);
 
                 if (parentId === null) {
